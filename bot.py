@@ -1,5 +1,6 @@
 import math
 import time
+from selenium.webdriver.common.by import By
 
 class Bot:
     def __init__(self, name, browser):
@@ -13,7 +14,8 @@ class Bot:
         """Start the game by clicking the start button."""
         print(f'Starting bot for {self.name}...')
         try:
-            start_button = self.browser.find_element_by_class_name("sadg1")
+            # Updated to use find_element with By.CLASS_NAME
+            start_button = self.browser.find_element(By.CLASS_NAME, "sadg1")
             start_button.click()
             print(f"[{self.name}] Game started.")
         except Exception as e:
@@ -25,7 +27,8 @@ class Bot:
             while True:
                 snake = self.browser.execute_script("return window.slither;")
                 if snake is None:
-                    start_button = self.browser.find_element_by_class_name("sadg1")
+                    # Updated to use find_element with By.CLASS_NAME
+                    start_button = self.browser.find_element(By.CLASS_NAME, "sadg1")
                     try:
                         if start_button.size["height"] > 0 and start_button.size["width"] > 0 and start_button.is_displayed():
                             start_button.click()

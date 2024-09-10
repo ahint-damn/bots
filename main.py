@@ -40,7 +40,7 @@ class Bot:
                     length = math.floor(
                         15 * self.browser.execute_script("return window.fpsls[window.slither.sct] + window.slither.fam / window.fmlts[window.slither.sct] - 1") - 5
                     )
-                    print(f"[{self.name}] Bot position: xx = {xx}, yy = {yy}, ang = {ang}, length = {length}")
+                    # print(f"[{self.name}] Bot position: xx = {xx}, yy = {yy}, ang = {ang}, length = {length}")
                     time.sleep(0.1)
         except Exception as e:
             print(f"[{self.name}] Failed to retrieve bot info: {e}")

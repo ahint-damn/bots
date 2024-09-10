@@ -1,3 +1,4 @@
+import math
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
@@ -47,14 +48,14 @@ class BotManager:
             self.browsers[name] = bot
 
         try:
-            quality_button = browser.find_element_by_id("grqh")
+            quality_button = browser.find_element(By.ID, "grqh")
             quality_button.click()
             print(f"[{name}] Quality toggled.")
         except Exception as e:
             print(f"[{name}] Failed to find the quality button: {e}")
 
         try:
-            input_field = browser.find_element_by_tag_name("input")
+            input_field = browser.find_element(By.TAG_NAME, "input")
             input_field.send_keys(name)
             print(f"[{name}] Name set.")
         except Exception as e:
@@ -85,32 +86,72 @@ class BotManager:
         self.update_overlay()
 
     def update_overlay(self):
-        """Continuously update the user window with bot information."""
+        """Continuously update the user window with bot and user information."""
         while True:
+            # Update bot information
             bot_info = f"Bots Alive: {sum(bot.alive for bot in self.browsers.values())}<br>"
             for bot in self.browsers.values():
                 bot_info += f"Bot {bot.name}: x={bot.position[0]}, y={bot.position[1]}, length={bot.length}<br>"
 
+            # Update user information
+            user_info = self.get_user_info()
+
             script = f"""
+            // Create bot info overlay if not exists
             if (!document.getElementById('bot-overlay')) {{
-                var div = document.createElement('div');
-                div.id = 'bot-overlay';
-                div.style.position = 'fixed';
-                div.style.bottom = '50px';
-                div.style.left = '10px';
-                div.style.fontSize = '12px';
-                div.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-                div.style.color = 'white';
-                div.style.fontFamily = 'Arial';
-                div.style.borderRadius = '5px';
-                div.style.padding = '10px';
-                div.style.zIndex = '10000';
-                document.body.appendChild(div);
+                var botDiv = document.createElement('div');
+                botDiv.id = 'bot-overlay';
+                botDiv.style.position = 'fixed';
+                botDiv.style.top = '10px';
+                botDiv.style.left = '10px';
+                botDiv.style.fontSize = '12px';
+                botDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                botDiv.style.color = 'white';
+                botDiv.style.fontFamily = 'Arial';
+                botDiv.style.borderRadius = '5px';
+                botDiv.style.padding = '10px';
+                botDiv.style.zIndex = '10000';
+                document.body.appendChild(botDiv);
             }}
             document.getElementById('bot-overlay').innerHTML = `{bot_info}`;
+
+            // Create user info overlay if not exists
+            if (!document.getElementById('user-overlay')) {{
+                var userDiv = document.createElement('div');
+                userDiv.id = 'user-overlay';
+                userDiv.style.position = 'fixed';
+                userDiv.style.bottom = '60px';
+                userDiv.style.left = '10px';
+                userDiv.style.fontSize = '12px';
+                userDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                userDiv.style.border = '1px solid firebrick';
+                userDiv.style.color = 'white';
+                userDiv.style.fontFamily = 'Arial';
+                userDiv.style.borderRadius = '5px';
+                userDiv.style.padding = '10px';
+                userDiv.style.zIndex = '10000';
+                document.body.appendChild(userDiv);
+            }}
+            document.getElementById('user-overlay').innerHTML = `{user_info}`;
             """
             self.user_browser.execute_script(script)
             time.sleep(1)
+
+    def get_user_info(self):
+        """Retrieve the user snake's position and length."""
+        try:
+            snake = self.user_browser.execute_script("return window.slither;")
+            if snake:
+                user_x = snake['xx']
+                user_y = snake['yy']
+                user_length = self.user_browser.execute_script(
+                    "return Math.floor(15 * window.fpsls[window.slither.sct] + window.slither.fam / window.fmlts[window.slither.sct] - 1) - 5"
+                )
+                return f"User Position: x={math.floor(user_x)}, y={math.floor(user_y)}, length={user_length}<br>"
+            else:
+                return "User not in game<br>"
+        except Exception as e:
+            return f"Error retrieving user info: {e}<br>"
 
     def close_instances(self):
         """Close all browser instances."""

@@ -12,7 +12,7 @@ def main():
     global bot_manager
     user_browser = open_user_window()
 
-    bot_manager = BotManager(browser_count=3, user_browser=user_browser)
+    bot_manager = BotManager(browser_count=1, user_browser=user_browser)
     print("Creating instances asynchronously...")
     bot_manager.create_instances()
     print("Instances created.")

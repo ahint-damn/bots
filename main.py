@@ -40,7 +40,13 @@ class Bot:
                     length = math.floor(
                         15 * self.browser.execute_script("return window.fpsls[window.slither.sct] + window.slither.fam / window.fmlts[window.slither.sct] - 1") - 5
                     )
-                    # print(f"[{self.name}] Bot position: xx = {xx}, yy = {yy}, ang = {ang}, length = {length}")
+                    canvas = self.browser.find_element(By.TAG_NAME, "canvas")
+
+                    # Move the snake
+                    # window.xm, ym = mouse position. Set the bots to move to the top right
+                    self.browser.execute_script(f"window.xm = {canvas.size['width']}; window.ym = 0;")
+                    
+                    #print(f"[{self.name}] Bot position: xx = {xx}, yy = {yy}, ang = {ang}, length = {length}")
                     time.sleep(0.1)
         except Exception as e:
             print(f"[{self.name}] Failed to retrieve bot info: {e}")
@@ -56,7 +62,7 @@ class Bot:
 
 
 class BotManager:
-    def __init__(self, browser_count=4):
+    def __init__(self, browser_count=1):
         self.browser_count = browser_count
         self.browsers = {}  # Store bots with names as keys
         self.browsers_lock = Lock()
@@ -122,7 +128,7 @@ class BotManager:
 
 
 def main():
-    bot_manager = BotManager(browser_count=4)
+    bot_manager = BotManager()
     print("Creating instances asynchronously...")
     bot_manager.create_instances()
     print("Instances created.")

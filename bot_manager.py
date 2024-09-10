@@ -5,6 +5,8 @@ from bot import Bot
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+import os
+import random
 
 class BotManager:
     def __init__(self, browser_count=1, user_browser=None):
